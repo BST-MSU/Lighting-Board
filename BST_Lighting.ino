@@ -22,9 +22,8 @@
 */
 // Let other signals override the running lights
 
+//#include <Wire.h>
 /*
-#include <Wire.h>
-
 // Communication with Pi
 #define SLAVE_ADDRESS 0x04
 int number = 0;
@@ -32,7 +31,6 @@ int state = 0;
 const int i2cSDA = A4;
 const int i2cSDL = A5;
 */
-
 // Output to lights
 const int runlightPinOUT = 7;
 const int bmsFaultPinOUT = 6;
@@ -45,8 +43,8 @@ const int headlightPinOUT = 2;
 const int bmsFaultPinIN = A2;
 const int hazardPinIN = A1;
 const int brakePinIN = 12;
-//const int runlightPinIN = 11;
-const int headlightPinIN = 10;
+//const int runlightPinIN = 10;
+const int headlightPinIN = 11;
 const int leftTurnPinIN = 9;
 const int rightTurnPinIN =  8;
 
@@ -73,14 +71,12 @@ void setup() {
   //pinMode(i2cSDA, OUTPUT);
   Serial.begin(9600); // Start Serial for output
   //Wire.begin(SLAVE_ADDRESS);
-
 /*
   // Define callbacks for I2C communication
   Wire.onReceive(receiveData);
   Wire.onRequest(sendData);
   Serial.println("Ready!");
 */
-
   // Initialize output pins
   pinMode(bmsFaultPinOUT, OUTPUT);
   pinMode(headlightPinOUT, OUTPUT);
@@ -102,6 +98,8 @@ void setup() {
 // Master loop
 void loop() {
   Serial.write("\nHello\n");
+  
+
   bms = analogRead(bmsFaultPinIN);
   hazard = analogRead(hazardPinIN);
   left = digitalRead(leftTurnPinIN);
@@ -156,7 +154,22 @@ void loop() {
     }
   } 
 }
+/*
+// Callback for received data
+coid receiveData(int byteCount) {
+  while (Wire.available()) {
+    number = Wire.read();
+    Serial.print("Data received.");
+    Serial.println(number);
 
+    if (number == 1) {
+      if (state == 0) {
+        digitalWrite(i2cSDA, HIGH); // Set 
+      }
+    }
+  }
+}
+*/
 // Left Turn Signal function
 void leftTurnFXN() {
   //Changing state of left turn signal
@@ -218,6 +231,22 @@ void runLightFXN() {
   }
 }
 */
+
+// BMS Fault function
+void bmsFaultFXN() {
+  //Changing state of BMS Fault--> also flashes hazards
+  if (bmsFaultPinOUT == HIGH) {
+    digitalWrite(bmsFaultPinOUT, LOW);
+    hazard = 1023;
+  } else {
+    digitalWrite(bmsFaultPinOUT, HIGH);
+    delay(200);
+    hazard = 0;
+  }
+  digitalWrite(bmsFaultPinOUT, LOW);
+  Serial.write("Pomegranates! Sh*t, Pomegranates! \n");
+}
+
 // Hazards function
 void hazardFXN() {
   //Changing state of hazards--> right turn and left turn flashing
@@ -232,19 +261,4 @@ void hazardFXN() {
   digitalWrite(rightTurnPinOUT, LOW);
   digitalWrite(leftTurnPinOUT, LOW);
   Serial.write("Aw, Fig! \n");
-}
-
-// BMS Fault function
-void bmsFaultFXN() {
-  //Changing state of BMS Fault--> also flashes hazards
-  if (bmsFaultPinOUT == HIGH) {
-    digitalWrite(bmsFaultPinOUT, LOW);
-    hazard = 0;
-  } else {
-    digitalWrite(bmsFaultPinOUT, HIGH);
-    delay(200);
-    hazard = 1023;
-  }
-  digitalWrite(bmsFaultPinOUT, LOW);
-  Serial.write("Pomegranates! Sh*t, Pomegranates! \n");
 }
