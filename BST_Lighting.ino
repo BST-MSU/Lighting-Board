@@ -1,7 +1,9 @@
 /*  Bridger Solar Team at Montana State University
     Authors: Levi Allery and Tanner Whetzel
     System Integration Capstone: Lighting, Wiring, and Schematics
-    Last Updated: March 31, 2019
+    Last Updated: April 3, 2091
+                  April 1, 2019
+                  March 31, 2019
                   March 29, 2019
                   March 27, 2019
                   February 20, 2019
@@ -11,6 +13,7 @@
                   February 15, 2019
 */
 
+// NOTE: Running light functions have been commented out for the time being. 
 // Bit-bang the non PWM pins (PWM are D3, D5, D9, D10, D11) for dimming the running light signal
 /*
    do {
@@ -32,7 +35,7 @@ const int i2cSDA = A4;
 const int i2cSDL = A5;
 */
 // Output to lights
-const int runlightPinOUT = 7;
+const int runlightPinOUT = 7; // Left active to prevent Pin floating
 const int bmsFaultPinOUT = 6;
 const int brakePinOUT = 5; // PWM Pin
 const int leftTurnPinOUT = 4;
@@ -99,7 +102,6 @@ void setup() {
 void loop() {
   Serial.write("\nHello\n");
   
-
   bms = analogRead(bmsFaultPinIN);
   hazard = analogRead(hazardPinIN);
   left = digitalRead(leftTurnPinIN);
@@ -156,7 +158,7 @@ void loop() {
 }
 /*
 // Callback for received data
-coid receiveData(int byteCount) {
+void receiveData(int byteCount) {
   while (Wire.available()) {
     number = Wire.read();
     Serial.print("Data received.");
@@ -231,7 +233,6 @@ void runLightFXN() {
   }
 }
 */
-
 // BMS Fault function
 void bmsFaultFXN() {
   //Changing state of BMS Fault--> also flashes hazards
