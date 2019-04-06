@@ -13,7 +13,7 @@
                   February 15, 2019
 */
 
-// NOTE: Running light functions have been commented out for the time being. 
+// NOTE: Running light functions have been commented out for the time being.
 // Bit-bang the non PWM pins (PWM are D3, D5, D9, D10, D11) for dimming the running light signal
 /*
    do {
@@ -25,15 +25,15 @@
 */
 // Let other signals override the running lights
 
-//#include <Wire.h>
-/*
+#include <Wire.h>
+
 // Communication with Pi
 #define SLAVE_ADDRESS 0x04
 int number = 0;
 int state = 0;
-const int i2cSDA = A4;
-const int i2cSDL = A5;
-*/
+const int i2cSDA = A4; // Data line
+const int i2cSDL = A5; // Clock line
+
 // Output to lights
 const int runlightPinOUT = 7; // Left active to prevent Pin floating
 const int bmsFaultPinOUT = 6;
@@ -46,10 +46,10 @@ const int headlightPinOUT = 2;
 const int bmsFaultPinIN = A2;
 const int hazardPinIN = A1;
 const int brakePinIN = 12;
-//const int runlightPinIN = 10;
 const int headlightPinIN = 11;
 const int leftTurnPinIN = 9;
 const int rightTurnPinIN =  8;
+//const int runlightPinIN = 10;
 
 // Digital and Analog read state variables
 int bms;
@@ -71,15 +71,15 @@ const long interval = 600; //Sets blinker and hazard interval
 
 // Setup pinouts
 void setup() {
-  //pinMode(i2cSDA, OUTPUT);
+  pinMode(i2cSDA, OUTPUT);
   Serial.begin(9600); // Start Serial for output
-  //Wire.begin(SLAVE_ADDRESS);
-/*
+  Wire.begin(SLAVE_ADDRESS);
+
   // Define callbacks for I2C communication
   Wire.onReceive(receiveData);
   Wire.onRequest(sendData);
   Serial.println("Ready!");
-*/
+
   // Initialize output pins
   pinMode(bmsFaultPinOUT, OUTPUT);
   pinMode(headlightPinOUT, OUTPUT);
@@ -101,7 +101,7 @@ void setup() {
 // Master loop
 void loop() {
   Serial.write("\nHello\n");
-  
+
   bms = analogRead(bmsFaultPinIN);
   hazard = analogRead(hazardPinIN);
   left = digitalRead(leftTurnPinIN);
@@ -154,24 +154,33 @@ void loop() {
 
       rightTurnFXN(); //Execute Right Turn Signal code
     }
-  } 
+  }
 }
-/*
+
 // Callback for received data
 void receiveData(int byteCount) {
   while (Wire.available()) {
     number = Wire.read();
-    Serial.print("Data received.");
+    Serial.print("Data received: ");
     Serial.println(number);
 
     if (number == 1) {
       if (state == 0) {
-        digitalWrite(i2cSDA, HIGH); // Set 
+        digitalWrite(i2cSDA, HIGH); // Set data pin on
+        state = 1;
+      } else {
+        digitalWrite(i2cSDA, LOW); // Set data pin off
+        state = 0;
       }
     }
   }
 }
-*/
+
+// Callback for sending data
+void sendData() {
+  Wire.write(number);
+}
+
 // Left Turn Signal function
 void leftTurnFXN() {
   //Changing state of left turn signal
@@ -221,18 +230,7 @@ void brakeLightFXN() {
     Serial.write("Apples. \n");
   }
 }
-/*
-// Running Lights function
-void runLightFXN() {
-  if (runlight == HIGH) {
-    // turn lights on
-    digitalWrite(runlightPinOUT, LOW);
-    Serial.write("Peaches. \n");
-  } else {
-    digitalWrite(runlightPinOUT, HIGH);
-  }
-}
-*/
+
 // BMS Fault function
 void bmsFaultFXN() {
   //Changing state of BMS Fault--> also flashes hazards
@@ -263,3 +261,16 @@ void hazardFXN() {
   digitalWrite(leftTurnPinOUT, LOW);
   Serial.write("Aw, Fig! \n");
 }
+
+/*
+  // Running Lights function
+  void runLightFXN() {
+  if (runlight == HIGH) {
+    // turn lights on
+    digitalWrite(runlightPinOUT, LOW);
+    Serial.write("Peaches. \n");
+  } else {
+    digitalWrite(runlightPinOUT, HIGH);
+  }
+  }
+*/
