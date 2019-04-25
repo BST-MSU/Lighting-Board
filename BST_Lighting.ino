@@ -1,7 +1,7 @@
 /*  Bridger Solar Team at Montana State University
     Authors: Levi Allery and Tanner Whetzel
     System Integration Capstone: Lighting, Wiring, and Schematics
-    Last Updated: April 3, 2091
+    Last Updated: April 3, 2019
                   April 1, 2019
                   March 31, 2019
                   March 29, 2019
@@ -221,7 +221,7 @@ void headlightFXN() {
 
 // Brakelight function
 void brakeLightFXN() {
-  if (brake == HIGH) {
+  if (brake == LOW) {
     // turn lights on
     digitalWrite(brakePinOUT, LOW);
     Serial.write("TOMATOES! \n");
